@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import criarBotao from '../ui/criarBotao.js';
+import { NIVEL_MAXIMO } from '../config/Niveis.js';
 
 export default class EndScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,7 @@ export default class EndScene extends Phaser.Scene {
   create() {
     const d = this.dados;
     const vitoria = d.vitoria === true;
+    const estat = d.estat || { lixo: 0, inimigos: 0, tempo: 0 };
     const centroX = this.scale.width / 2;
 
     this.cameras.main.fadeIn(400);
@@ -23,7 +25,7 @@ export default class EndScene extends Phaser.Scene {
     const titulo = vitoria ? 'LAGOA RESTAURADA!' : 'A POLUIÇÃO VENCEU...';
     const corTitulo = vitoria ? '#b8f5d0' : '#ffb3b3';
 
-    this.add.text(centroX, 70, titulo, {
+    this.add.text(centroX, 60, titulo, {
       fontFamily: 'monospace',
       fontSize: '44px',
       color: corTitulo,
@@ -31,20 +33,29 @@ export default class EndScene extends Phaser.Scene {
       strokeThickness: 7
     }).setOrigin(0.5);
 
-    const juara = this.add.sprite(60, 70, 'juara_baixo_0').setScale(3);
+    const juara = this.add.sprite(60, 60, 'juara_baixo_0').setScale(3);
     juara.play('juara_baixo');
 
     if (vitoria) {
-      this.add.image(740, 70, 'flor_amarela').setScale(3);
+      this.add.image(740, 60, 'flor_amarela').setScale(3);
     } else {
-      this.add.sprite(740, 70, 'lodo_0').setScale(2.5).play('lodo_pulsar');
+      this.add.sprite(740, 60, 'lodo_0').setScale(2.5).play('lodo_pulsar');
     }
 
-    const resumo = 'Lixo recolhido: ' + (d.lixo || 0) + '/' + (d.totalLixo || 0) +
-      '     Lodos derrotados: ' + (d.derrotados || 0) + '/' + (d.totalInimigos || 0) +
-      '     Tempo: ' + (d.tempo || 0) + 's';
+    const linha1 = (vitoria ? 'Nível final: ' : 'Nível alcançado: ') + (d.nivel || 1) + '/' + NIVEL_MAXIMO +
+      '     Pontos: ' + (d.pontos || 0) + '     Recorde: ' + (d.recorde || 0);
+    const linha2 = 'Lixo recolhido: ' + estat.lixo + '     Monstros derrotados: ' + estat.inimigos +
+      '     Tempo: ' + estat.tempo + 's';
 
-    this.add.text(centroX, 130, resumo, {
+    this.add.text(centroX, 112, linha1, {
+      fontFamily: 'monospace',
+      fontSize: '16px',
+      color: '#ffe082',
+      stroke: '#0b1f2a',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+
+    this.add.text(centroX, 136, linha2, {
       fontFamily: 'monospace',
       fontSize: '16px',
       color: '#ffffff',
@@ -52,7 +63,7 @@ export default class EndScene extends Phaser.Scene {
       strokeThickness: 4
     }).setOrigin(0.5);
 
-    this.add.rectangle(400, 330, 700, 330, 0x0b1f2a, 0.7);
+    this.add.rectangle(400, 340, 700, 330, 0x0b1f2a, 0.7);
 
     const mensagem = vitoria
       ? 'Graças à Juara, a lagoa voltou a respirar: a água está limpa, a vegetação renasceu e os animais estão a salvo.\n\n' +
@@ -64,7 +75,7 @@ export default class EndScene extends Phaser.Scene {
         'Descartar corretamente e reduzir o plástico faz toda a diferença.\n\n' +
         'Tente novamente e proteja a Lagoa Juara!';
 
-    this.add.text(centroX, 330, mensagem, {
+    this.add.text(centroX, 340, mensagem, {
       fontFamily: 'monospace',
       fontSize: '18px',
       color: '#ffffff',
@@ -72,11 +83,17 @@ export default class EndScene extends Phaser.Scene {
       wordWrap: { width: 640 }
     }).setOrigin(0.5);
 
-    criarBotao(this, centroX - 150, 540, vitoria ? 'JOGAR DE NOVO' : 'TENTAR DE NOVO', () => {
-      this.scene.start('GameScene');
+    const rotulo = vitoria ? 'JOGAR DE NOVO' : 'TENTAR NÍVEL ' + (d.nivel || 1);
+
+    criarBotao(this, centroX - 150, 545, rotulo, () => {
+      if (vitoria) {
+        this.scene.start('GameScene', { nivel: 1 });
+      } else {
+        this.scene.start('GameScene', d.tentarNovamente || { nivel: 1 });
+      }
     });
 
-    criarBotao(this, centroX + 190, 540, 'MENU', () => {
+    criarBotao(this, centroX + 200, 545, 'MENU', () => {
       this.scene.start('MenuScene');
     }, '#3b6ea5', '#4d88c9');
   }

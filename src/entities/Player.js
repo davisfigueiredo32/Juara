@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { explosao } from '../art/Efeitos.js';
+import { Som } from '../audio/SomJogo.js';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -26,6 +27,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.direcaoFrente = new Phaser.Math.Vector2(0, 1);
     this.tempoUltimoAtaque = 0;
     this.intervaloAtaque = 400;
+    this.danoLanca = 1;
     this.lanca = null;
 
     this.intervaloOnda = 4000;
@@ -109,6 +111,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.lanca) return;
 
     this.tempoUltimoAtaque = agora;
+    Som.ataque();
 
     const alcance = 34;
     const lx = this.x + this.direcaoFrente.x * alcance;
@@ -139,6 +142,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     if (agora - this.tempoUltimaOnda < this.intervaloOnda) return;
 
     this.tempoUltimaOnda = agora;
+    Som.onda();
 
     const raio = 130;
 
@@ -168,14 +172,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.vida = Math.min(this.vidaMaxima, this.vida + quantidade);
   }
 
-  receberDano(origemX, origemY) {
+  receberDano(origemX, origemY, dano = 1) {
     const agora = this.scene.time.now;
 
     if (agora < this.invulneravelAte) return;
 
-    this.vida -= 1;
+    this.vida -= dano;
     this.invulneravelAte = agora + 1000;
     this.atordoadoAte = agora + 200;
+    Som.dano();
 
     const empurrao = new Phaser.Math.Vector2(this.x - origemX, this.y - origemY);
     empurrao.normalize();

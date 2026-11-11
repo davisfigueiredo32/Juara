@@ -1,3 +1,5 @@
+import { Som } from '../audio/SomJogo.js';
+
 export default function criarBotao(scene, x, y, texto, aoClicar, cor = '#2a8f5a', corHover = '#34b36f') {
   const botao = scene.add.text(x, y, texto, {
     fontFamily: 'monospace',
@@ -17,7 +19,10 @@ export default function criarBotao(scene, x, y, texto, aoClicar, cor = '#2a8f5a'
     botao.setStyle({ backgroundColor: cor });
   });
 
-  botao.on('pointerdown', aoClicar);
+  botao.on('pointerdown', () => {
+    Som.clique();
+    aoClicar();
+  });
 
   return botao;
 }

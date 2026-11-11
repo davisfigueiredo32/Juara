@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { criarTodasTexturas, criarAnimacoes } from '../art/Texturas.js';
+import { criarTexturasInimigos, criarAnimacoesInimigos } from '../art/TexturasInimigos.js';
 
 export default class BootScene extends Phaser.Scene {
   constructor() {
@@ -8,7 +9,9 @@ export default class BootScene extends Phaser.Scene {
 
   create() {
     criarTodasTexturas(this);
+    criarTexturasInimigos(this);
     criarAnimacoes(this);
+    criarAnimacoesInimigos(this);
     this.scene.start('MenuScene');
   }
 }

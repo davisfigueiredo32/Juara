@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import criarBotao from '../ui/criarBotao.js';
+import { Som } from '../audio/SomJogo.js';
+import { lerRecorde } from '../config/Recorde.js';
 
 export default class MenuScene extends Phaser.Scene {
   constructor() {
@@ -19,6 +21,12 @@ export default class MenuScene extends Phaser.Scene {
 
     const lodo = this.add.sprite(660, 380, 'lodo_0').setScale(4);
     lodo.play('lodo_pulsar');
+
+    const espuma = this.add.sprite(560, 440, 'espuma_0').setScale(2.5);
+    espuma.play('espuma_anim');
+
+    const atirador = this.add.sprite(250, 440, 'atirador_0').setScale(2.5);
+    atirador.play('atirador_anim');
 
     this.tweens.add({
       targets: [juara, lodo],
@@ -44,8 +52,8 @@ export default class MenuScene extends Phaser.Scene {
       strokeThickness: 5
     }).setOrigin(0.5);
 
-    this.add.text(centroX, 265,
-      'A Lagoa Juara está poluída.\nRecolha o lixo e derrote os Lodos Poluídos\npara restaurar o equilíbrio da natureza.', {
+    this.add.text(centroX, 262,
+      'A Lagoa Juara está poluída.\nRecolha o lixo e derrote os monstros da poluição\nem 8 níveis para restaurar o equilíbrio da natureza.', {
         fontFamily: 'monospace',
         fontSize: '18px',
         color: '#ffffff',
@@ -54,12 +62,23 @@ export default class MenuScene extends Phaser.Scene {
         align: 'center'
       }).setOrigin(0.5);
 
-    criarBotao(this, centroX, 370, 'INICIAR', () => this.iniciar());
+    criarBotao(this, centroX, 360, 'INICIAR', () => this.iniciar());
 
-    this.add.text(centroX, 470,
-      'Mover: setas ou W A S D   |   Lança: ESPAÇO   |   Onda Purificadora: E\nCelular: joystick e botões na tela', {
+    const recorde = lerRecorde();
+    if (recorde > 0) {
+      this.add.text(centroX, 410, 'RECORDE: ' + recorde + ' pontos', {
         fontFamily: 'monospace',
-        fontSize: '15px',
+        fontSize: '18px',
+        color: '#ffe082',
+        stroke: '#0b1f2a',
+        strokeThickness: 4
+      }).setOrigin(0.5);
+    }
+
+    this.add.text(centroX, 500,
+      'Mover: setas ou W A S D  |  Lança: ESPAÇO  |  Onda Purificadora: E\nPausa: P ou ESC  |  Som: M  |  Celular: joystick e botões na tela', {
+        fontFamily: 'monospace',
+        fontSize: '14px',
         color: '#ffffff',
         stroke: '#0b1f2a',
         strokeThickness: 4,
@@ -70,6 +89,8 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   iniciar() {
-    this.scene.start('GameScene');
+    Som.clique();
+    Som.iniciarMusica();
+    this.scene.start('GameScene', { nivel: 1 });
   }
 }
